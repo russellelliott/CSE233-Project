@@ -208,3 +208,51 @@ def analyze_directories(selected_dirs, analysis_results_dir="analysis_results", 
 
 # Analyze the directories and generate charts
 analyze_directories(selected_dirs)
+
+def aggregate_results(directories, output_file="aggregated_results.json"):
+    """
+    Aggregates the analysis results from multiple JSON files into a single JSON file.
+
+    Args:
+        directories (list): A list of directories containing the 'analysis_results.json' files.
+        output_file (str): The name of the output JSON file.
+    """
+
+    all_results = {}
+
+    for directory in directories:
+        # Extract date/context path for use as a key
+        date_context_path = os.path.basename(directory)
+        analysis_file_path = os.path.join("analysis_results", date_context_path, "analysis_results.json")
+
+        try:
+            with open(analysis_file_path, "r") as f:
+                data = json.load(f)
+
+            for prompt_index, llm_data in data.items():
+                if prompt_index not in all_results:
+                    all_results[prompt_index] = {}
+
+                all_results[prompt_index][date_context_path] = {}  # Use date/context path as key
+
+                for llm, counts in llm_data.items():
+                    all_results[prompt_index][date_context_path][llm] = {
+                        "success": counts["success"],
+                        "rejection": counts["rejection"],
+                        "api_error": counts["api_error"]
+                    }
+
+        except FileNotFoundError:
+            print(f"Error: 'analysis_results.json' not found in: {analysis_file_path}")
+        except json.JSONDecodeError:
+            print(f"Error: Invalid JSON format in: {analysis_file_path}")
+        except Exception as e:
+            print(f"An unexpected error occurred while processing {analysis_file_path}: {e}")
+
+    # Save the aggregated results to the output file
+    with open(output_file, "w") as f:
+        json.dump(all_results, f, indent=4)
+
+    print(f"Aggregated results saved to {output_file}")
+
+aggregate_results(selected_dirs, "aggregated_results.json")
