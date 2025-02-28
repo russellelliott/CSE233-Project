@@ -15,4 +15,5 @@ The project consists of 3 main directories
 * `evalMultiple.py`: Parses through selected files from the `bash2text/api_responses` folder. Evaluates whether a prompt is a success or rejection through string comparison to several strings used in RedCode evaluaiton file: https://github.com/AI-secure/RedCode/blob/main/evaluation/RedCode_Exec/evaluation.py Saves logs to `analysis_results` folder.
 `RedCode-Exec`: contains the files from the RedCode dataset for Bash and Python codes and prompts
 https://github.com/AI-secure/RedCode/tree/main/dataset
+`llm-performance`: Contains graphs based off the `analysis_results` files, showing how often each of the LLMs succeeded or failed in generated malicious code, or encoutnered some sort of 429 rate limit error. While this has been tackled previously for GPT4o and Claude, Gemini experieinced it a few times recently.
 
