@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from datetime import datetime
 
 # RedCode Rejection Templates
 REJECT_TEMPLATES = [
@@ -82,14 +83,23 @@ def analyze_json_files(directories, output_base="analysis_results"):
             json.dump(sorted_results, f, indent=4)
         print(f"Results exported to {output_file}")
 
+# selected_dirs = [
+#     "bash2text/api_responses/2025-02-26_11-03", #original prompts
+#     "bash2text/api_responses/2025-02-27_14-03_context", #added jailbreak prompt 1
+#     "bash2text/api_responses/2025-02-27_14-26_context" #added jailbreak prompt 2
+# ]
+
+#now using DeepSeek
 selected_dirs = [
-    "bash2text/api_responses/2025-02-26_11-03", #original prompts
-    "bash2text/api_responses/2025-02-27_14-03_context", #added jailbreak prompt 1
-    "bash2text/api_responses/2025-02-27_14-26_context" #added jailbreak prompt 2
+    "bash2text/api_responses/2025-03-01_08-39", #original prompts
+    "bash2text/api_responses/2025-03-01_11-12_context" #added jailbreak prompt 2
 ]
 
 analyze_json_files(selected_dirs)
 
+#----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 import json
 import matplotlib.pyplot as plt
@@ -124,9 +134,11 @@ def create_bar_chart(data, output_filename="llm_performance.png"):
     # Plotting setup
     n_prompts = len(prompts)
     n_llms = len(llms)  # Number of LLMs
-    bar_width = 0.2  # Width of each bar
+    bar_width = 0.8 / n_llms  # Adjusted for grouping
+    group_width = 1  # Width of each group of bars
 
-    index = np.arange(n_prompts)
+    index = np.arange(n_prompts) * group_width  # Spread out the groups
+
 
     fig, ax = plt.subplots(figsize=(15, 8))  # Adjust figure size for readability
 
@@ -137,12 +149,13 @@ def create_bar_chart(data, output_filename="llm_performance.png"):
 
     # Plot bars for each LLM and stack them
     for i, llm in enumerate(llms):
-        x = index + (i - n_llms // 2) * bar_width  # Calculate x position for each LLM group
+        x = index + (i - n_llms / 2 + bar_width/2) * bar_width  # Calculate x position for each LLM group
 
         # Stacked bars: Success at the bottom, then Rejection, then API Error
-        ax.bar(x, success_counts[llm], bar_width, label=f'{llm} - Success' if i == 0 else None, color=success_color)
-        ax.bar(x, rejection_counts[llm], bar_width, bottom=success_counts[llm], label=f'{llm} - Rejection' if i == 0 else None, color=rejection_color)
-        ax.bar(x, api_error_counts[llm], bar_width, bottom=np.array(success_counts[llm]) + np.array(rejection_counts[llm]), label=f'{llm} - API Error' if i == 0 else None, color=api_error_color)
+        ax.bar(x, success_counts[llm], bar_width, label=f'Success' if i == 0 else None, color=success_color)
+        ax.bar(x, rejection_counts[llm], bar_width, bottom=success_counts[llm], label=f'Rejection' if i == 0 else None, color=rejection_color)
+        ax.bar(x, api_error_counts[llm], bar_width, bottom=np.array(success_counts[llm]) + np.array(rejection_counts[llm]), label=f'API Error' if i == 0 else None, color=api_error_color)
+
 
     # Customize the plot
     ax.set_xlabel('Prompt', fontsize=14)
@@ -150,6 +163,7 @@ def create_bar_chart(data, output_filename="llm_performance.png"):
     ax.set_title('LLM Performance by Prompt', fontsize=16)
     ax.set_xticks(index)
     ax.set_xticklabels(prompts, rotation=45, ha="right")  # Rotate labels for readability
+
 
     # Set y-axis ticks and gridlines
     ax.set_yticks([1, 2, 3])  # Only show gridlines for 1, 2, and 3
@@ -209,6 +223,10 @@ def analyze_directories(selected_dirs, analysis_results_dir="analysis_results", 
 # Analyze the directories and generate charts
 analyze_directories(selected_dirs)
 
+#----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+
 def aggregate_results(directories, output_file="aggregated_results.json"):
     """
     Aggregates the analysis results from multiple JSON files into a single JSON file.
@@ -248,6 +266,17 @@ def aggregate_results(directories, output_file="aggregated_results.json"):
             print(f"Error: Invalid JSON format in: {analysis_file_path}")
         except Exception as e:
             print(f"An unexpected error occurred while processing {analysis_file_path}: {e}")
+
+    # Get the current timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    output_dir = "aggregated_results"
+
+    #Ensure the directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create the timestamped output file path
+    output_file = os.path.join(output_dir, f"aggregated_results_{timestamp}.json")
+
 
     # Save the aggregated results to the output file
     with open(output_file, "w") as f:

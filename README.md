@@ -31,3 +31,4 @@ Based on this information, it produces the following content:
 https://github.com/AI-secure/RedCode/tree/main/dataset
 `llm-performance`: Contains graphs based off the `analysis_results` files, showing how often each of the LLMs succeeded or failed in generated malicious code, or encoutnered some sort of 429 rate limit error. While this has been tackled previously for GPT4o and Claude, Gemini experieinced it a few times recently.
 
+`aggregated_results`: contains aggregated results from various runs
