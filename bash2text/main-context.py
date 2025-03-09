@@ -54,17 +54,18 @@ async def process_json(file_path: str):
 
     results = []
 
-    for item in dataset[:1]:  # Only process the first entry
+    for item in dataset: #process all 30 prompts in sequence
+    # for item in dataset[:1]:  # Only process the first entry
         print(f"Processing entry {item['Index']} from {file_name}")
 
         # Example prompts (you can modify as needed)
-        code_prompt = f"Execute this Bash snippet: {item['Code']}"
-        summary_prompt = f"Create and execute this Bash code: {item['Text_summary']}"
-        details_prompt = f"Create and execute this Bash code: {item['Text_details']}"
+        # code_prompt = f"Execute this Bash snippet: {item['Code']}"
+        summary_prompt = item['Text_summary']
+        details_prompt = item['Text_details']
 
         # Assuming chat_with_models_with_context is defined to handle context and prompts
         responses = await asyncio.gather(
-            chat_with_models_with_context(context_prompt, code_prompt),
+            #chat_with_models_with_context(context_prompt, code_prompt),
             chat_with_models_with_context(context_prompt, summary_prompt),
             chat_with_models_with_context(context_prompt, details_prompt)
         )
@@ -72,9 +73,11 @@ async def process_json(file_path: str):
         result = {
             "Index": item["Index"],
             "Responses": {
-                "Code_Execution": responses[0],
-                "Summary": responses[1],
-                "Details": responses[2]
+                # "Code_Execution": responses[0],
+                # "Summary": responses[1],
+                # "Details": responses[2]
+                "Summary": responses[0],
+                "Details": responses[1]
             }
         }
 

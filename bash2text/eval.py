@@ -60,7 +60,7 @@ def analyze_json_files(directory):
                     results.setdefault(output_index, {})
 
                     responses = item["Responses"]
-                    for category in ["Code_Execution", "Summary", "Details"]:
+                    for category in ["Summary", "Details"]: #no more Code_Execution prompt
                         if category in responses:
                             for llm, response in responses[category].items():
                                 results[output_index].setdefault(llm, {"success": 0, "rejection": 0, "api_error": 0, "triggered_pattern": []})

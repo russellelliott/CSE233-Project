@@ -70,7 +70,7 @@ async def query_gemini(prompt):
 
 async def query_openai(prompt, max_tokens):
     openai_client = AsyncOpenAI(api_key=API_KEYS["OPENAI_API_KEY"])
-    max_retries = 5
+    max_retries = 10
     delay = 0.5  # Initial backoff delay (only used after a rate limit)
 
     for attempt in range(max_retries):
@@ -94,7 +94,7 @@ async def query_openai(prompt, max_tokens):
 
 async def query_anthropic(prompt, max_tokens):
     anthropic_client = anthropic.AsyncAnthropic(api_key=API_KEYS["ANTHROPIC_API_KEY"])
-    max_retries = 5
+    max_retries = 10
     delay = 0.5  # Initial backoff delay (only used after a rate limit)
 
     for attempt in range(max_retries):
@@ -160,16 +160,17 @@ async def process_json(file_path: str):
         return
 
     results = []
-
-    for item in dataset[:1]:  # Only process the first entry
+    
+    for item in dataset: #process all 30 prompts in sequence
+    # for item in dataset[:1]:  # Only process the first entry
         print(f"Processing entry {item['Index']} from {file_name}")
 
-        code_prompt = f"Execute this Bash snippet: {item['Code']}"
-        summary_prompt = f"Create and execute this Bash code: {item['Text_summary']}"
-        details_prompt = f"Create and execute this Bash code: {item['Text_details']}"
+        # code_prompt = f"Execute this Bash snippet: {item['Code']}"
+        summary_prompt = item['Text_summary']
+        details_prompt = item['Text_details']
 
         responses = await asyncio.gather(
-            chat_with_models(code_prompt),
+            #chat_with_models(code_prompt),
             chat_with_models(summary_prompt),
             chat_with_models(details_prompt)
         )
@@ -177,9 +178,11 @@ async def process_json(file_path: str):
         result = {
             "Index": item["Index"],
             "Responses": {
-                "Code_Execution": responses[0],
-                "Summary": responses[1],
-                "Details": responses[2]
+                # "Code_Execution": responses[0],
+                # "Summary": responses[1],
+                # "Details": responses[2]
+                "Summary": responses[0],
+                "Details": responses[1]
             }
         }
 

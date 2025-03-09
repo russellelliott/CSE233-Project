@@ -52,7 +52,7 @@ def analyze_json_files(directories, output_base="analysis_results"):
                         results.setdefault(output_index, {})
 
                         responses = item["Responses"]
-                        for category in ["Code_Execution", "Summary", "Details"]:
+                        for category in ["Summary", "Details"]: #no more Code_Execution prompt
                             if category in responses:
                                 for llm, response in responses[category].items():
                                     results[output_index].setdefault(llm, {"success": 0, "rejection": 0, "api_error": 0, "triggered_pattern": []})
@@ -90,9 +90,14 @@ def analyze_json_files(directories, output_base="analysis_results"):
 # ]
 
 #now using DeepSeek
+# selected_dirs = [
+#     "bash2text/api_responses/2025-03-01_08-39", #original prompts
+#     "bash2text/api_responses/2025-03-01_11-12_context" #added jailbreak prompt 2
+# ]
+
 selected_dirs = [
-    "bash2text/api_responses/2025-03-01_08-39", #original prompts
-    "bash2text/api_responses/2025-03-01_11-12_context" #added jailbreak prompt 2
+    "bash2text/api_responses/2025-03-08_08-22", #original prompts
+    # "bash2text/api_responses/2025-03-01_11-12_context" #added jailbreak prompt 2
 ]
 
 analyze_json_files(selected_dirs)
@@ -166,8 +171,8 @@ def create_bar_chart(data, output_filename="llm_performance.png"):
 
 
     # Set y-axis ticks and gridlines
-    ax.set_yticks([1, 2, 3])  # Only show gridlines for 1, 2, and 3
-    ax.set_yticklabels([1, 2, 3])
+    ax.set_yticks([1, 2])  # Only show gridlines for 1, and 2
+    ax.set_yticklabels([1, 2])
     ax.grid(axis='y', linestyle='--')
 
     ax.legend(loc='upper right', ncol=n_llms)  # places all of the llms into a single row
