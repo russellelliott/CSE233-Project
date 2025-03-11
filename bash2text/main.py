@@ -69,51 +69,64 @@ async def query_gemini(prompt):
         return f"Gemini API Error: {e}"
 
 async def query_openai(prompt, max_tokens):
-    openai_client = AsyncOpenAI(api_key=API_KEYS["OPENAI_API_KEY"])
-    max_retries = 10
-    delay = 0.5  # Initial backoff delay (only used after a rate limit)
+    openai_client = openai.AsyncOpenAI(api_key=API_KEYS["OPENAI_API_KEY"])
+    max_retries = 7  # Reduced from 10
+    base_delay = 0.5
+    max_delay = 8  # Cap exponential backoff growth
 
     for attempt in range(max_retries):
         try:
             print(f"Querying OpenAI API... (Attempt {attempt + 1})")
-            response = await openai_client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model="gpt-4o",
-                max_tokens=max_tokens
+            response = await asyncio.wait_for(
+                openai_client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="gpt-4o",
+                    max_tokens=max_tokens
+                ),
+                timeout=10  # Prevent indefinitely hanging requests
             )
             return response.choices[0].message.content
         except openai.RateLimitError:
-            if attempt < max_retries - 1:  # Don't sleep after the last attempt
+            if attempt < max_retries - 1:
+                delay = min(base_delay * (2 ** attempt), max_delay)
                 print(f"OpenAI rate limit hit. Retrying in {delay:.2f} seconds...")
                 await asyncio.sleep(delay)
-                delay *= 2  # Exponential backoff
+        except asyncio.TimeoutError:
+            print("OpenAI request timed out. Retrying...")
         except Exception as e:
             return f"OpenAI API Error: {e}"
-    
+
     return "OpenAI API Error: Max retries reached."
+
 
 async def query_anthropic(prompt, max_tokens):
     anthropic_client = anthropic.AsyncAnthropic(api_key=API_KEYS["ANTHROPIC_API_KEY"])
-    max_retries = 10
-    delay = 0.5  # Initial backoff delay (only used after a rate limit)
+    max_retries = 7  # Reduced from 10
+    base_delay = 0.5
+    max_delay = 8  # Cap exponential backoff growth
 
     for attempt in range(max_retries):
         try:
             print(f"Querying Anthropic API... (Attempt {attempt + 1})")
-            response = await anthropic_client.messages.create(
-                model="claude-3-5-sonnet-20241022",
-                max_tokens=max_tokens,
-                messages=[{"role": "user", "content": prompt}]
+            response = await asyncio.wait_for(
+                anthropic_client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=max_tokens,
+                    messages=[{"role": "user", "content": prompt}]
+                ),
+                timeout=10  # Prevent indefinitely hanging requests
             )
             return response.content[0].text
         except anthropic.RateLimitError:
-            if attempt < max_retries - 1:  # Don't sleep after the last attempt
+            if attempt < max_retries - 1:
+                delay = min(base_delay * (2 ** attempt), max_delay)
                 print(f"Anthropic rate limit hit. Retrying in {delay:.2f} seconds...")
                 await asyncio.sleep(delay)
-                delay *= 2  # Exponential backoff
+        except asyncio.TimeoutError:
+            print("Anthropic request timed out. Retrying...")
         except Exception as e:
             return f"Anthropic API Error: {e}"
-    
+
     return "Anthropic API Error: Max retries reached."
 
 async def query_deepseek(prompt, max_tokens):
