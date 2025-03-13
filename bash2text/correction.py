@@ -17,7 +17,7 @@ from main import (
 DATASET_PATH = "RedCode-Exec/bash2text_dataset_json"
 OUTPUT_DIR = "bash2text/api_responses"
 LLM_LIST = ["llama3-8b-8192", "gemini-2.0-flash", "gpt-4o", "claude-3-5-sonnet-20241022", "deepseek-chat"]
-TARGET_DIRECTORY = "2025-03-09_08-25_context"  # Specify the subdirectory here
+TARGET_DIRECTORY = "2025-03-08_09-55"  # Specify the subdirectory here
 
 
 # Function to load JSON data from a file
