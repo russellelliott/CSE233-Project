@@ -29,7 +29,7 @@ Based on this information, it produces the following content:
 
 Because `main-context.py` and `correction.py` depend on `main.py`, a directory with the current date is made. This is normally for the context of `main.py` but this will be empty in the context of running the two aforementioned files
 
-One thing to note for these files is that they will only write to the files after all the LLM reads/writes for a specific unit are done. I would recommend using a 3rd party plugin to prevent your computer from sleeping so you can run it for houts ar a time without it being interrupted.
+One thing to note for these files is that they will only write to the files after all the LLM reads/writes for a specific unit are done. I would recommend using a 3rd party plugin, like Amphetamine for Mac to prevent your computer from sleeping so you can run it for hours ar a time without it being interrupted.
 
 `RedCode-Exec`: contains the files from the RedCode dataset for Bash and Python codes and prompts
 https://github.com/AI-secure/RedCode/tree/main/dataset
