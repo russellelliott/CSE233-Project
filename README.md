@@ -25,7 +25,7 @@ Based on this information, it produces the following content:
 2. Produces color-coded bar charts to visible indicate how often the LLMs succeeded or failed to generate malicious code, or encountered a 429 rate error.
 3. Produce an aggregated results file (aggregated_results.json) from the data of all the files in the selected list. Breaks down by index, then by the PRF files, then by prompt.
 
-`correction.py`: goes through the output files of a given directory and checks for LLMs that experienced errors and redoes those prompts.
+`correction.py`: goes through the output files of a given directory and checks for LLMs that experienced errors and redoes those prompts. `correctionSpecific.py` is used for correcting specific prompt categories and prompts within
 
 Because `main-context.py` and `correction.py` depend on `main.py`, a directory with the current date is made. This is normally for the context of `main.py` but this will be empty in the context of running the two aforementioned files
 
